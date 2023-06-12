@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: hello-svc
+  name: juiceshop-svc
   labels:
-    app: hello-world
+    app: juice-shop
 spec:
   type: NodePort
   ports:
@@ -11,17 +11,17 @@ spec:
     nodePort: 30001
     protocol: TCP
   selector:
-    app: hello-world
+    app: juice-shop
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hello-deploy
+  name: juiceshop-deploy
 spec:
-  replicas: 10
+  replicas: 3
   selector:
     matchLabels:
-      app: hello-world
+      app: juice-shop
   minReadySeconds: 10
   strategy:
     type: RollingUpdate
@@ -31,10 +31,10 @@ spec:
   template:
     metadata:
       labels:
-        app: hello-world
+        app: juice-shop
     spec:
       containers:
-      - name: hello-pod
-        image: nigelpoulton/acg-web:0.1
+      - name: juice-shop
+        image: alsharma9/juice-shop:csg-boot
         ports:
         - containerPort: 8080
