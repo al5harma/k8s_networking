@@ -25,3 +25,4 @@ spec:
         name: nginx
         securityContext:
           runAsUser: 0 # running as root!
+          allowPrivilegeEscalation: true # Allow privilege escalation
