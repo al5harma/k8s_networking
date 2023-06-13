@@ -1,19 +1,29 @@
 Kubernetes Demo Setup with Minikube
 This repository provides a demo setup to test multi-node cluster functionalities and network testing in Kubernetes using Minikube. We cover several scenarios, including deploying pods across the cluster with pod anti-affinity, deploying a web application with an Nginx server, and deploying a vulnerable application to demonstrate the importance of security scanning. Both Kubernetes configuration and Docker images are examined for security vulnerabilities using Snyk.
 
-Prerequisites
-Before you begin, ensure you have the following installed:
+# Minikube Multi-Node Cluster and Network Testing
 
-Docker
-Minikube
-kubectl
-Snyk CLI
-Remember to replace <SNYK_TOKEN> with your actual Snyk token during Snyk CLI authentication.
+## Overview
+This repository provides a demo setup to test multi-node cluster functionalities and network testing in Kubernetes using Minikube. We cover several scenarios, including deploying pods across the cluster with pod anti-affinity, deploying a web application with an Nginx server, and deploying a vulnerable application to demonstrate the importance of security scanning. Both Kubernetes configuration and Docker images are examined for security vulnerabilities using Snyk.
+
+## Prerequisites
+Before you begin, ensure you have the following installed:
+- [Docker](https://docs.docker.com/get-docker/)
+- [Minikube](https://minikube.sigs.k8s.io/docs/start/)
+- [kubectl](https://kubernetes.io/docs/tasks/tools/)
+- [Snyk CLI](https://support.snyk.io/hc/en-us/articles/360003812578-CLI-reference)
+
+Remember to replace `<SNYK_TOKEN>` with your actual Snyk token during Snyk CLI authentication.
+
+## Setup
+To begin, start Minikube with 3 nodes:
+```bash
+minikube start --nodes 3
 
 Setup
 To begin, start Minikube with 3 nodes:
 
-minikube start --nodes 3
+'''minikube start --nodes 3'''
 
 Code snippet
 
