@@ -94,8 +94,8 @@ To delete the Minikube cluster, use:
 
 (Optional) To stop and remove all Docker containers, use:
 
-```docker stop $(docker ps -aq)
-docker rm $(docker ps -aq)```
+```docker stop $(docker ps -aq)```
+```docker rm $(docker ps -aq)```
 
 
 (Optional) To remove all Docker images, use:
