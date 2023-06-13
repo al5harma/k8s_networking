@@ -23,3 +23,5 @@ spec:
       containers:
       - image: nginx:1.12
         name: nginx
+        securityContext:
+          runAsUser: 0 # running as root!
