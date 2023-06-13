@@ -1,79 +1,72 @@
-# Minikube Multi-Node Cluster and Network Testing
-Minikube is designed to create a single-node Kubernetes cluster for local development testing. However, as of version v1.10.0 (released April 2020), minikube supports the creation of multi-node clusters using the `--nodes` flag during cluster creation.
+Overview
+This repository provides a demo setup to test multi-node cluster functionalities and network testing in Kubernetes using Minikube. We cover several scenarios, including deploying pods across the cluster with pod anti-affinity, deploying a web application with an Nginx server, and deploying a vulnerable application to demonstrate the importance of security scanning. Both Kubernetes configuration and Docker images are examined for security vulnerabilities using Snyk.
 
-## Starting a multi-node cluster
+Prerequisites
+Before you begin, ensure you have the following installed:
 
-  ```
-  minikube start --nodes 3
-  ```
+Docker
+Minikube
+kubectl
+Snyk CLI
+Remember to replace <SNYK_TOKEN> with your actual Snyk token during Snyk CLI authentication.
 
-This will create a cluster with 3 nodes. Confirm the nodes in your cluster with:
+Setup
+To begin, start Minikube with 3 nodes:
 
-  ```
-  kubectl get nodes
-  ```
+bash
+Copy code
+minikube start --nodes 3
+Verify the nodes in your cluster with kubectl get nodes.
 
-**Note:** Each of these "nodes" is a separate Kubernetes control plane all running on the same physical machine. They're not like nodes in a production Kubernetes cluster. They're really separate clusters that have been configured to look like a multi-node cluster from Kubernetes' point of view.
+Scenarios
+Scenario 1: Ping Pods in Cluster with DaemonSets and ClusterIP
+Apply the ping-deploy.yml file to deploy the ping testing pod to each node:
 
-## Deployment Configuration
+bash
+Copy code
+kubectl apply -f ping-deploy.yml
+To view the nodes and pods, use kubectl get nodes -o wide.
 
-In the deployment YAML, specify to create 3 replicas of your pod. This effectively creates 3 pods. However, Kubernetes automatically schedules pods across all available nodes. If using minikube to simulate a multi-node environment, Kubernetes may still schedule multiple pods on the same node if resources allow. To ensure each pod lands on a different node, use a feature called pod anti-affinity.
+To enter the node, use kubectl exec -it <nodename> bash, replacing <nodename> with your actual node name. You can then update the local containers with necessary tools:
 
-## Setting up a NodePort service
+bash
+Copy code
+apt-get update
+apt-get install iputils-ping curl dnsutils iproute2 -y
+ip a
+Scenario 2: Deploy a Web Application with Nginx
+To deploy the web service to front the nodes and create a NodePort service, apply the corresponding yml file:
 
-Ensure that you have a Service of type NodePort set up that targets your pods for access.
+bash
+Copy code
+kubectl apply -f nginx-deploy.yml
+Scenario 3: Deploy a Vulnerable Application
+Apply the juice-deploy.yml file to deploy the Juice Shop application:
 
-The `requiredDuringSchedulingIgnoredDuringExecution` in your pod anti-affinity rules means that the rule must be met when scheduling the pod. However, if conditions change after the pod is scheduled, the system does not try to reschedule the pod.
+bash
+Copy code
+kubectl apply -f juice-deploy.yml
+To find the Minikube node IP, use minikube ip. Then, you can send a request to the NodePort service using the Minikube's IP and the NodePort specified in your service definition:
 
-The `labelSelector` looks for pods with a label key of `app` and a value of `pinger`, which is the label of the pods created by this deployment. The `topologyKey` is `kubernetes.io/hostname`, ensuring no two pods with the label `app=pinger` can be scheduled on the same node.
+bash
+Copy code
+curl $(minikube ip):30001
+This should return the expected response from your service. You can verify this with kubectl get services and kubectl get pods.
 
-**Note:** Anti-affinity rules can make it harder for the scheduler to find a suitable place to run a pod, especially in a small cluster. If there are not enough unique nodes for all the pods you're trying to run, some pods may remain unscheduled.
+Security Scanning
+To scan the Kubernetes configuration files using Snyk IaC, use snyk iac test <YAML_FILE>, replacing <YAML_FILE> with the name of your YAML file.
 
-## Testing the setup
+To scan Docker images for vulnerabilities, use snyk container test <IMAGE_NAME>, replacing <IMAGE_NAME> with the name of your Docker image.
 
-Once the local minikube cluster is running 3 nodes, apply the ping-deploy.yml:
+Cleanup
+To delete the deployments, use kubectl delete -f <YAML_FILE>, replacing <YAML_FILE> with the name of your YAML file.
 
-  ```
-  kubectl apply -f ping-deploy.yml
-  ```
+To delete the Minikube cluster, use minikube delete.
 
-Next, get the nodes and pods:
+(Optional) To stop and remove all Docker containers, use docker stop $(docker ps -aq) and docker rm $(docker ps -aq).
 
+(Optional) To remove all Docker images, use docker rmi $(docker images -q). Be careful as this will remove all Docker images from your system.
 
-  ```
-  kubectl get nodes -o wide
-  kubectl exec -it <nodename> bash
-  ```
+(Optional) To prune Docker resources, use docker system prune. This will remove all stopped containers, dangling images, and unused networks. If you also want to remove all unused volumes, add the -a flag, i.e., docker system prune -a.
 
-Update the local containers with necessary tools:
-
-  ```
-  apt-get update
-  apt-get install iputils-ping curl dnsutils iproute2 -y
-  ip a
-  ```
-
-Next, deploy the web service to front the nodes and create a NodePort service:
-
-  ```
-  kubectl apply -f ping-deploy.yml
-  ```
-
-Find the minikube node IP:
-
-  ```
-  minikube ip
-  ```
-
-Then, curl to the NodePort service using the Minikube's IP and the NodePort specified in your service definition:
-
-  ```
-  curl $(minikube ip):30001
-  ```
-
-This should return the expected response from your service. Remember that the service and the pods it routes to must be running and ready to accept connections. Verify this with:
-
-  ```
-  kubectl get services
-  kubectl get pods
-  ```
+By following these steps, you can ensure that your demo environment is cleaned up after your presentation. All deployed applications, pods, and services will be deleted, your local Minikube cluster will be stopped, and optionally, all Docker resources can be cleaned up.
