@@ -42,9 +42,9 @@ To enter the node, use:
 
 Replacing <nodename> with your actual node name. You can then update the local containers with necessary tools:
 
-```apt-get update
-apt-get install iputils-ping curl dnsutils iproute2 -y
-ip a```
+```apt-get update```
+```apt-get install iputils-ping curl dnsutils iproute2 -y```
+```ip a```
 
 ###Scenario 2: Deploy a Web Application with Nginx
 To deploy the web service to front the nodes and create a NodePort service, apply the corresponding yml file:
